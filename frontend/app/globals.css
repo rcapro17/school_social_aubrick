@@ -39,7 +39,7 @@ textarea {
 }
 .header {
   background: #1b2c5d;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #000000;
   margin-bottom: 12px;
 }
 .header-inner {
@@ -79,4 +79,31 @@ textarea {
   border-radius: 999px;
   background: #fff;
   cursor: pointer;
+}
+
+/* Dark mode styles */
+.dark {
+  background-color: #18181b;
+  color: #f4f4f5;
+}
+
+.dark .card,
+.dark .btn.secondary,
+.dark .react {
+  background: #23232a;
+  color: #f4f4f5;
+  border-color: #333;
+}
+
+.dark .btn {
+  background: #333;
+  color: #f4f4f5;
+}
+
+.dark .avatar {
+  border-color: #333;
+}
+
+body, html {
+  transition: background-color 0.3s, color 0.3s;
 }
