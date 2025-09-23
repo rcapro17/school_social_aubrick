@@ -2,22 +2,28 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-// import { api, apiForm, authHeaders, API_BASE } from "../lib/apiClient";
-import { api, apiForm, authHeaders } from "../lib/apiClient";
+import { api, apiForm, authHeaders, API_BASE } from "../lib/apiClient";
+
+// Função para corrigir URL do avatar
+function getAvatarUrl(avatar) {
+  if (!avatar) return null;
+  
+  // Se já é URL completa, use como está
+  if (avatar.startsWith('http')) return avatar;
+  
+  // Remove /api/ se estiver presente e constrói URL correta
+  const baseUrl = API_BASE.replace('/api', '');
+  return `${baseUrl}${avatar}`;
+}
 
 function Header({ me, onLogout }) {
   return (
     <div className="header">
       <div className="header-inner">
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <img
-            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAyNDAgMjQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8IS0tIE9yYW5nZSBjaGF0IGJ1YmJsZSAtLT4KPGVsbGlwc2UgY3g9IjEwMCIgY3k9IjE0MCIgcng9IjUwIiByeT0iNDAiIGZpbGw9IiNGRjg4MDAiIHN0cm9rZT0iI0ZGODgwMCIgc3Ryb2tlLXdpZHRoPSI0Ii8+CjwhLS0gUmVkIHBob25lIC0tPgo8cmVjdCB4PSIxMzAiIHk9IjgwIiB3aWR0aD0iNjAiIGhlaWdodD0iMTAwIiByeD0iOCIgZmlsbD0iI0RDMzUzNSIgc3Ryb2tlPSIjREMzNTM1IiBzdHJva2Utd2lkdGg9IjMiLz4KPGNpcmNsZSBjeD0iMTYwIiBjeT0iMTY1IiByPSI0IiBmaWxsPSJ3aGl0ZSIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjcwIiB5PSIxNDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMyMDIwMjAiPlNvY2k8L3RleHQ+Cjx0ZXh0IHg9IjEyNSIgeT0iMTQ1IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMjAyMDIwIj5BdWJyaWNrPC90ZXh0Pgo8L3N2Zz4="
-            alt="SociAubrick Logo"
-            style={{ width: 50, height: 50 }}
-          />
-          <strong style={{ color: "white" }}>SociAubrick</strong>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <strong>School Social</strong>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {!me ? (
             <Link href="/signin" className="btn secondary">
               Sign in
@@ -25,9 +31,17 @@ function Header({ me, onLogout }) {
           ) : (
             <>
               {me.avatar && (
-                <img className="avatar" src={me.avatar} alt="avatar" />
+                <img 
+                  className="avatar" 
+                  src={getAvatarUrl(me.avatar)} 
+                  alt="avatar"
+                  onError={(e) => {
+                    console.log('Erro no avatar do header:', e.target.src);
+                    e.target.style.display = 'none';
+                  }}
+                />
               )}
-              <span style={{ color: "white" }}>
+              <span>
                 {me.username} • {me.role}
               </span>
               <button className="btn secondary" onClick={onLogout}>
@@ -128,7 +142,17 @@ export default function HomePage() {
         {me && (
           <div className="card">
             <div style={{ display: "flex", gap: 8 }}>
-              {me.avatar && <img className="avatar" src={me.avatar} alt="me" />}
+              {me.avatar && (
+                <img 
+                  className="avatar" 
+                  src={getAvatarUrl(me.avatar)} 
+                  alt="me"
+                  onError={(e) => {
+                    console.log('Erro no avatar do post:', e.target.src);
+                    e.target.style.display = 'none';
+                  }}
+                />
+              )}
               <textarea
                 rows={3}
                 placeholder="Share an update..."
@@ -156,9 +180,16 @@ export default function HomePage() {
           posts.map((p) => (
             <div className="card" key={p.id}>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                {/* ✅ CHANGED: wrap author avatar with toAbsoluteUrl */}
                 {p.author?.avatar && (
-                  <img className="avatar" src={p.author.avatar} alt="a" />
+                  <img 
+                    className="avatar" 
+                    src={getAvatarUrl(p.author.avatar)} 
+                    alt="a"
+                    onError={(e) => {
+                      console.log('Erro no avatar do post:', e.target.src);
+                      e.target.style.display = 'none';
+                    }}
+                  />
                 )}
                 <div>
                   <div>
@@ -182,15 +213,14 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* ✅ CHANGED: wrap post images with toAbsoluteUrl */}
               {p.images?.map((img) => (
                 <img
                   key={img.id}
-                  src={img.image}
+                  src={getAvatarUrl(img.image)} // Aplicando correção também nas imagens dos posts
                   className="post-image"
                   alt="img"
                   onError={(e) => {
-                    console.log("Erro na imagem do post:", e.target.src);
+                    console.log('Erro na imagem do post:', e.target.src);
                   }}
                 />
               ))}
