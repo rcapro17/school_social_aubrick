@@ -1,6 +1,6 @@
 import "./globals.css";
 export const metadata = {
-  title: "School Social",
+  title: "SociAubrick",
   description: "Internal school social network",
 };
 
@@ -9,7 +9,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         style={{
-          background: "#f2f3f5",
+          background: "#e7e7e7ff",
           margin: 0,
           fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
         }}>

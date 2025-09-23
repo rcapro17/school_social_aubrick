@@ -38,14 +38,14 @@ textarea {
   border-radius: 8px;
 }
 .header {
-  background: #fff;
+  background: #1b2c5d;
   border-bottom: 1px solid #ddd;
   margin-bottom: 12px;
 }
 .header-inner {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 12px;
+  padding: 25px;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -60,7 +60,7 @@ textarea {
   height: 40px;
   border-radius: 999px;
   object-fit: cover;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
 }
 .post-image {
   width: 100%;
