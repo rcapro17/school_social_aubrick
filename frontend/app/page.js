@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-// import { api, apiForm, authHeaders, API_BASE } from "../lib/apiClient";
-import { api, apiForm, authHeaders } from "../lib/apiClient";
+import {
+  api,
+  apiForm,
+  authHeaders,
+  toAbsoluteUrl, // ✅ NEW: ensures media paths are absolute (http://127.0.0.1:8000/media/...)
+} from "../lib/apiClient";
 
 function Header({ me, onLogout }) {
   return (
@@ -19,8 +23,13 @@ function Header({ me, onLogout }) {
             </Link>
           ) : (
             <>
-              {me.avatar && (
-                <img className="avatar" src={me.avatar} alt="avatar" />
+              {/* ✅ CHANGED: wrap avatar with toAbsoluteUrl */}
+              {me?.avatar && (
+                <img
+                  className="avatar"
+                  src={toAbsoluteUrl(me.avatar)}
+                  alt="me"
+                />
               )}
               <span>
                 {me.username} • {me.role}
@@ -123,7 +132,14 @@ export default function HomePage() {
         {me && (
           <div className="card">
             <div style={{ display: "flex", gap: 8 }}>
-              {me.avatar && <img className="avatar" src={me.avatar} alt="me" />}
+              {/* ✅ CHANGED: wrap avatar with toAbsoluteUrl */}
+              {me?.avatar && (
+                <img
+                  className="avatar"
+                  src={toAbsoluteUrl(me.avatar)}
+                  alt="me"
+                />
+              )}
               <textarea
                 rows={3}
                 placeholder="Share an update..."
@@ -151,8 +167,13 @@ export default function HomePage() {
           posts.map((p) => (
             <div className="card" key={p.id}>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                {/* ✅ CHANGED: wrap author avatar with toAbsoluteUrl */}
                 {p.author?.avatar && (
-                  <img className="avatar" src={p.author.avatar} alt="a" />
+                  <img
+                    className="avatar"
+                    src={toAbsoluteUrl(p.author.avatar)}
+                    alt="a"
+                  />
                 )}
                 <div>
                   <div>
@@ -176,10 +197,11 @@ export default function HomePage() {
                 </div>
               )}
 
+              {/* ✅ CHANGED: wrap post images with toAbsoluteUrl */}
               {p.images?.map((img) => (
                 <img
                   key={img.id}
-                  src={img.image}
+                  src={toAbsoluteUrl(img.image)}
                   className="post-image"
                   alt="img"
                 />
