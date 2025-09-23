@@ -20,15 +20,15 @@ a {
 }
 .btn {
   padding: 8px 12px;
-  border: 1px solid #1877f2;
+  border: 1px solid #000000;
   border-radius: 8px;
-  background: #1877f2;
+  background: #000000;
   color: #fff;
   cursor: pointer;
 }
 .btn.secondary {
   background: #fff;
-  color: #1877f2;
+  color: #000000;
 }
 .input,
 textarea {
