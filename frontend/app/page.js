@@ -284,14 +284,14 @@ export default function HomePage() {
                     justifyContent: "center",
                     width: 32,
                     height: 32,
-                    background: "#fff3e0",
+                    background: "#23232a",
                     borderRadius: "50%",
                     cursor: "pointer",
                     border: "1px solid #ff9800",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
                   }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="#ff9800" strokeWidth="2" fill="#fff3e0"/>
+                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="#ff9800" strokeWidth="2" fill="#23232a"/>
                       <circle cx="8" cy="13" r="2" fill="#ff9800" />
                       <path d="M21 19L15 13L11 17L7 13L3 17" stroke="#ff9800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -304,28 +304,36 @@ export default function HomePage() {
                     />
                   </label>
                   <button type="button" style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
                     display: "flex",
-                    alignItems: "center"
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 32,
+                    height: 32,
+                    background: "#23232a",
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    border: "1px solid #ff9800",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
                   }} title="GIF" onClick={handleGifClick}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="#ff9800" strokeWidth="2" fill="#fff3e0"/>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="#ff9800" strokeWidth="2" fill="#23232a"/>
                       <text x="7" y="16" fontSize="8" fill="#ff9800" fontFamily="Arial">GIF</text>
                     </svg>
                   </button>
                   <button type="button" style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
                     display: "flex",
-                    alignItems: "center"
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 32,
+                    height: 32,
+                    background: "#23232a",
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    border: "1px solid #ff9800",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
                   }} title="Emoji" onClick={handleEmojiClick}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" stroke="#ff9800" strokeWidth="2" fill="#fff3e0"/>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="#ff9800" strokeWidth="2" fill="#23232a"/>
                       <circle cx="9" cy="10" r="1.5" fill="#ff9800" />
                       <circle cx="15" cy="10" r="1.5" fill="#ff9800" />
                       <path d="M8 15C8.66667 16 10.6667 17 12 17C13.3333 17 15.3333 16 16 15" stroke="#ff9800" strokeWidth="1.5" strokeLinecap="round"/>
