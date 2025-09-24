@@ -60,6 +60,32 @@ function Header({ me, onLogout }) {
 }
 
 export default function HomePage() {
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState("");
+  const [gifs, setGifs] = useState([]);
+  function handleGifClick() {
+    setShowGifPicker((v) => !v);
+    setShowEmojiPicker(false);
+  }
+  function handleEmojiClick() {
+    setShowEmojiPicker((v) => !v);
+    setShowGifPicker(false);
+  }
+  async function searchGiphy(term) {
+    if (!term) return;
+    const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=${encodeURIComponent(term)}&limit=8`);
+    const data = await res.json();
+    setGifs(data.data || []);
+  }
+  function addGifToPost(gifUrl) {
+    setImages((imgs) => [...imgs, { url: gifUrl, isGif: true }]);
+    setShowGifPicker(false);
+  }
+  function addEmojiToContent(emoji) {
+    setContent((c) => c + emoji);
+    setShowEmojiPicker(false);
+  }
   const [me, setMe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -86,18 +112,37 @@ export default function HomePage() {
 
   async function createPost() {
     if (!content && images.length === 0) return;
-    const post = await api("/posts/", {
-      method: "POST",
-      body: JSON.stringify({ content }),
-    });
-    for (const file of images) {
-      const fd = new FormData();
-      fd.set("image", file);
-      await apiForm(`/posts/${post.id}/upload_image/`, fd);
+    try {
+      const post = await api("/posts/", {
+        method: "POST",
+        body: JSON.stringify({ content }),
+      });
+      for (const img of images) {
+        if (img.isGif) {
+          // Save GIF URL as a text post addition (or handle as needed)
+          await api(`/posts/${post.id}/add_gif/`, {
+            method: "POST",
+            body: JSON.stringify({ url: img.url }),
+          });
+        } else {
+          const fd = new FormData();
+          fd.set("image", img);
+          await apiForm(`/posts/${post.id}/upload_image/`, fd);
+        }
+      }
+      setContent("");
+      setImages([]);
+      console.log("Setting success message...");
+      setSuccessMsg("✅ Successfully posted!");
+      setTimeout(() => {
+        console.log("Clearing success message...");
+        setSuccessMsg("");
+      }, 3000);
+      await load();
+    } catch (err) {
+      console.error("Error creating post:", err);
+      alert("Error creating post: " + err.message);
     }
-    setContent("");
-    setImages([]);
-    await load();
   }
 
   async function react(postId, type = "like") {
@@ -142,7 +187,7 @@ export default function HomePage() {
         me={me}
         onLogout={() => {
           localStorage.removeItem("token");
-          location.reload();
+          window.location.href = "/signin";
         }}
       />
       {successMsg && (
@@ -155,7 +200,9 @@ export default function HomePage() {
           padding: "12px 24px",
           borderRadius: "8px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-          zIndex: 2000,
+          zIndex: 9999,
+          fontSize: "16px",
+          fontWeight: "500",
         }}>
           {successMsg}
         </div>
@@ -170,7 +217,7 @@ export default function HomePage() {
 
         {me && (
           <div className="card">
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "flex-start", position: "relative" }}>
               {me.avatar && (
                 <img 
                   className="avatar" 
@@ -182,23 +229,147 @@ export default function HomePage() {
                   }}
                 />
               )}
-              <textarea
-                rows={3}
-                placeholder="Share an update..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
-            </div>
-            <div className="row" style={{ marginTop: 8, alignItems: "center" }}>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => setImages(Array.from(e.target.files || []))}
-              />
-              <button className="btn" onClick={createPost}>
-                Post
-              </button>
+              <div style={{ flex: 1, position: "relative" }}>
+                <textarea
+                  rows={3}
+                  placeholder="What's happening?"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  style={{ width: "100%" }}
+                />
+                {images.length > 0 && (
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8, marginBottom: 8 }}>
+                  {Array.from(images).map((file, index) => (
+                    <div key={index} style={{ position: "relative" }}>
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index + 1}`}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                          border: "1px solid #333"
+                        }}
+                      />
+                      <button
+                        onClick={() => setImages(images.filter((_, i) => i !== index))}
+                        style={{
+                          position: "absolute",
+                          top: -8,
+                          right: -8,
+                          background: "#23232a",
+                          border: "1px solid #333",
+                          borderRadius: "50%",
+                          width: 20,
+                          height: 20,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: 12,
+                          cursor: "pointer"
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 18, marginTop: 16, alignItems: "center", position: "relative" }}>
+                  <label style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 32,
+                    height: 32,
+                    background: "#fff3e0",
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    border: "1px solid #ff9800",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="#ff9800" strokeWidth="2" fill="#fff3e0"/>
+                      <circle cx="8" cy="13" r="2" fill="#ff9800" />
+                      <path d="M21 19L15 13L11 17L7 13L3 17" stroke="#ff9800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: "none" }}
+                      onChange={(e) => setImages(Array.from(e.target.files || []))}
+                    />
+                  </label>
+                  <button type="button" style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    display: "flex",
+                    alignItems: "center"
+                  }} title="GIF" onClick={handleGifClick}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="#ff9800" strokeWidth="2" fill="#fff3e0"/>
+                      <text x="7" y="16" fontSize="8" fill="#ff9800" fontFamily="Arial">GIF</text>
+                    </svg>
+                  </button>
+                  <button type="button" style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    display: "flex",
+                    alignItems: "center"
+                  }} title="Emoji" onClick={handleEmojiClick}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="#ff9800" strokeWidth="2" fill="#fff3e0"/>
+                      <circle cx="9" cy="10" r="1.5" fill="#ff9800" />
+                      <circle cx="15" cy="10" r="1.5" fill="#ff9800" />
+                      <path d="M8 15C8.66667 16 10.6667 17 12 17C13.3333 17 15.3333 16 16 15" stroke="#ff9800" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                {showGifPicker && (
+                  <div style={{ position: "absolute", left: 0, top: 40, background: "#23232a", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.2)", padding: 12, zIndex: 10, minWidth: 260 }}>
+                    <input
+                      type="text"
+                      value={gifSearch}
+                      onChange={e => {
+                        setGifSearch(e.target.value);
+                        searchGiphy(e.target.value);
+                      }}
+                      placeholder="Search GIFs..."
+                      style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: "1px solid #ff9800", background: "#18181b", color: "#fff" }}
+                    />
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {gifs.map(gif => (
+                        <img key={gif.id} src={gif.images.fixed_height_small.url} alt="gif" style={{ width: 60, height: 60, borderRadius: 6, cursor: "pointer" }} onClick={() => addGifToPost(gif.images.fixed_height.url)} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {showEmojiPicker && (
+                  <div style={{ position: "absolute", left: 60, top: 40, background: "#23232a", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.2)", padding: 12, zIndex: 10, minWidth: 180 }}>
+                    {["😀","😂","😍","😎","😭","😡","👍","🙏","🎉","❤️"].map(e => (
+                      <button key={e} style={{ fontSize: 22, margin: 4, background: "none", border: "none", cursor: "pointer", color: "#ff9800" }} onClick={() => addEmojiToContent(e)}>{e}</button>
+                    ))}
+                  </div>
+                )}
+                  <div style={{ flex: 1 }} />
+                  <button className="btn" onClick={createPost} style={{
+                    padding: "6px 18px",
+                    fontSize: 14,
+                    background: "#ff9800",
+                    color: "#fff",
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+                  }}>
+                    Post
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -242,36 +413,44 @@ export default function HomePage() {
                 </div>
               )}
 
-              {p.images?.map((img) => (
-                <img
-                  key={img.id}
-                  src={getAvatarUrl(img.image)} 
-                  className="post-image"
-                  alt="img"
-                  onError={(e) => {
-                    console.log('Erro na imagem do post:', e.target.src);
-                  }}
-                />
+              {p.images?.map((img, idx) => (
+                img.isGif ? (
+                  <img
+                    key={img.url + idx}
+                    src={img.url}
+                    className="post-image"
+                    alt="gif"
+                  />
+                ) : (
+                  <img
+                    key={img.id}
+                    src={getAvatarUrl(img.image)}
+                    className="post-image"
+                    alt="img"
+                    onError={(e) => {
+                      console.log('Erro na imagem do post:', e.target.src);
+                    }}
+                  />
+                )
               ))}
 
               <div className="reacts">
-                <button className="react" onClick={() => react(p.id, "👍")}>
-                  👍 Like
-                </button>
-                <button className="react" onClick={() => react(p.id, "❤️")}>
-                  ❤️ Love
-                </button>
-                <button className="react" onClick={() => react(p.id, "😂")}>
-                  😂 Laugh
-                </button>
-                <button className="react" onClick={() => unreact(p.id)}>
-                  ❌ Remove reaction
-                </button>
+                <button className="react" onClick={() => react(p.id, "👍")}>👍 Like</button>
+                <button className="react" onClick={() => react(p.id, "❤️")}>❤️ Love</button>
+                <button className="react" onClick={() => react(p.id, "😂")}>😂 Laugh</button>
+                <button className="react" onClick={() => unreact(p.id)}>❌ Remove reaction</button>
               </div>
 
               {p.reactions?.length > 0 && (
-                <div style={{ marginTop: 6, color: "#666" }}>
-                  {p.reactions.map((r) => r.type).join(" • ")}
+                <div style={{ marginTop: 6, color: "#ffffffff", display: "flex", gap: 8 }}>
+                  {Object.entries(
+                    p.reactions.reduce((acc, r) => {
+                      acc[r.type] = (acc[r.type] || 0) + 1;
+                      return acc;
+                    }, {})
+                  ).map(([type, count]) => (
+                    <span key={type}>{count > 1 ? `${count} ${type}` : type}</span>
+                  ))}
                 </div>
               )}
             </div>

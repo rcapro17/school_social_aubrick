@@ -21,31 +21,81 @@ export function toAbsoluteUrl(url) {
   return `${apiOrigin()}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
+async function handleTokenError() {
+  // Limpar o token expirado
+  localStorage.removeItem("token");
+  // Redirecionar para a página de login
+  window.location.href = "/signin";
+}
+
 export async function api(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-      ...authHeaders(),
-    },
-  });
-  if (!res.ok) throw new Error(await res.text());
-  const text = await res.text();
-  if (!text) return null;
   try {
-    return JSON.parse(text);
-  } catch {
-    return text;
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+        ...authHeaders(),
+      },
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        // Se for erro de token expirado/inválido
+        if (errorJson.code === "token_not_valid") {
+          await handleTokenError();
+          return;
+        }
+      } catch {
+        // Se não for JSON, apenas lança o erro original
+      }
+      throw new Error(errorText);
+    }
+
+    const text = await res.text();
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  } catch (error) {
+    if (error.message.includes("token_not_valid")) {
+      await handleTokenError();
+      return;
+    }
+    throw error;
   }
 }
 
 export async function apiForm(path, formData) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: { ...authHeaders() },
-    body: formData,
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      headers: { ...authHeaders() },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        if (errorJson.code === "token_not_valid") {
+          await handleTokenError();
+          return;
+        }
+      } catch {}
+      throw new Error(errorText);
+    }
+
+    return res.json();
+  } catch (error) {
+    if (error.message.includes("token_not_valid")) {
+      await handleTokenError();
+      return;
+    }
+    throw error;
+  }
 }

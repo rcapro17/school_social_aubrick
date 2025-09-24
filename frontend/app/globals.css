@@ -1,11 +1,21 @@
+.custom-btn {
+  background: #fff;
+  color: #ff9800;
+  border-radius: 50%;
+  border: 1px solid #ff9800;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dark .custom-btn {
+  background: #23232a;
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
 * {
   box-sizing: border-box;
 }
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
 .container {
   max-width: 900px;
   margin: 0 auto;
@@ -20,11 +30,12 @@ a {
 }
 .btn {
   padding: 8px 12px;
-  border: 1px solid #000000;
+  border: 1.5px solid #ff9800;
   border-radius: 8px;
-  background: #000000;
-  color: #ffffff;
+  background: #ff9800;
+  color: #fff;
   cursor: pointer;
+  float: right;
 }
 .btn.secondary {
   background: #fff;
@@ -36,6 +47,8 @@ textarea {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  background-color: #23232a;
+  color: #f4f4f5;
 }
 .header {
   background: #1b2c5d;
@@ -75,9 +88,10 @@ textarea {
 }
 .react {
   padding: 4px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #333;
   border-radius: 999px;
-  background: #fff;
+  background: #23232a;
+  color: #f4f4f5;
   cursor: pointer;
 }
 
@@ -106,11 +120,4 @@ textarea {
 
 body, html {
   transition: background-color 0.3s, color 0.3s;
-}
-.dark .input,
-textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #424242;
-  border-radius: 8px;
 }
