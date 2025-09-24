@@ -17,10 +17,18 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    lookup_field = "username"
 
     def get_permissions(self):
         # Allow signup without auth; everything else requires auth.
-        return [AllowAny()] if self.action == "create" else [IsAuthenticated()]
+        if self.action == "create":
+            return [AllowAny()]
+        elif self.action in ["retrieve", "list"]:
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated()]
+    def get_serializer_context(self):
+        return {"request": self.request}
 
     @action(detail=True, methods=["post", "patch"], parser_classes=[MultiPartParser, FormParser])
     def avatar(self, request, pk=None):
@@ -88,4 +96,5 @@ class PostViewSet(viewsets.ModelViewSet):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def me(request):
-    return Response(UserSerializer(request.user).data)
+    serializer = UserSerializer(request.user, context={'request': request})
+    return Response(serializer.data)
