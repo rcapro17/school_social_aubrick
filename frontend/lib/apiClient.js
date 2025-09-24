@@ -31,7 +31,13 @@ export async function api(path, options = {}) {
     },
   });
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
 export async function apiForm(path, formData) {

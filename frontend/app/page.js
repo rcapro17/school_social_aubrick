@@ -21,7 +21,11 @@ function Header({ me, onLogout }) {
     <div className="header">
       <div className="header-inner">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <strong>School Social</strong>
+          <img 
+          src="/logo/logotipo.png"
+          alt="SociAubrick Logo"
+          style={{ widht: 100, height:  100 }}
+          />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {!me ? (
@@ -61,6 +65,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
+  const [successMsg, setSuccessMsg] = useState("");
 
   async function load() {
     setLoading(true);
@@ -110,10 +115,19 @@ export default function HomePage() {
 
   async function remove(postId) {
     if (!confirm("Delete this post?")) return;
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/posts/${postId}/`, {
-      method: "DELETE",
-      headers: { ...authHeaders() },
-    });
+    try {
+      await api(`/posts/${postId}/`, { method: "DELETE" });
+      setSuccessMsg("✅ Post Successfully deleted!");
+      setTimeout(() => setSuccessMsg(""), 3000);
+    } catch (err) {
+      let msg = err.message;
+      try {
+        const json = JSON.parse(msg);
+        msg = json.detail || msg;
+      } catch {}
+      alert("Erro ao deletar: " + msg);
+      console.error("Delete error:", err);
+    }
     await load();
   }
 
@@ -122,7 +136,6 @@ export default function HomePage() {
     if (me.role === "teacher") return true;
     return post.author?.id === me.id;
   }
-
   return (
     <div>
       <Header
@@ -132,7 +145,23 @@ export default function HomePage() {
           location.reload();
         }}
       />
+      {successMsg && (
+        <div style={{
+          position: "fixed",
+          bottom: 24,
+          left: 24,
+          background: "#23232a",
+          color: "#f4f4f5",
+          padding: "12px 24px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          zIndex: 2000,
+        }}>
+          {successMsg}
+        </div>
+      )}
       <div className="container">
+        {/* ...existing code... */}
         {!me && (
           <div className="card">
             Please <Link href="/signin">sign in</Link> to post and react.
@@ -216,7 +245,7 @@ export default function HomePage() {
               {p.images?.map((img) => (
                 <img
                   key={img.id}
-                  src={getAvatarUrl(img.image)} // Aplicando correção também nas imagens dos posts
+                  src={getAvatarUrl(img.image)} 
                   className="post-image"
                   alt="img"
                   onError={(e) => {
@@ -226,13 +255,13 @@ export default function HomePage() {
               ))}
 
               <div className="reacts">
-                <button className="react" onClick={() => react(p.id, "like")}>
+                <button className="react" onClick={() => react(p.id, "👍")}>
                   👍 Like
                 </button>
-                <button className="react" onClick={() => react(p.id, "love")}>
+                <button className="react" onClick={() => react(p.id, "❤️")}>
                   ❤️ Love
                 </button>
-                <button className="react" onClick={() => react(p.id, "laugh")}>
+                <button className="react" onClick={() => react(p.id, "😂")}>
                   😂 Laugh
                 </button>
                 <button className="react" onClick={() => unreact(p.id)}>

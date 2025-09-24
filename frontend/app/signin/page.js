@@ -5,6 +5,7 @@ import Link from "next/link";
 import { API_BASE } from "../../lib/apiClient";
 
 export default function SignIn() {
+  console.log('🏷️ Página SignIn carregada');
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,9 +20,11 @@ export default function SignIn() {
         body: JSON.stringify({ username, password }),
       });
       if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      localStorage.setItem("token", data.access);
-      location.href = "/";
+        const data = await res.json();
+        localStorage.setItem("token", data.access);
+        console.log('🔑 Token salvo:', data.access);
+        console.log('🏠 Redirecionando...');
+        window.location.href = "/";
     } catch {
       setError("Invalid credentials");
     }
@@ -51,7 +54,7 @@ export default function SignIn() {
             Sign in
           </button>
         </form>
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 32 }}>
           No account? <Link href="/signup">Sign up</Link>
         </div>
       </div>

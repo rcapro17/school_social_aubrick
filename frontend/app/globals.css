@@ -15,15 +15,15 @@ a {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
 }
 .btn {
   padding: 8px 12px;
   border: 1px solid #000000;
   border-radius: 8px;
   background: #000000;
-  color: #fff;
+  color: #ffffff;
   cursor: pointer;
 }
 .btn.secondary {
@@ -40,12 +40,12 @@ textarea {
 .header {
   background: #1b2c5d;
   border-bottom: 1px solid #000000;
-  margin-bottom: 12px;
+  margin-bottom: 1px;
 }
 .header-inner {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 25px;
+  padding: 0px;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -106,4 +106,11 @@ textarea {
 
 body, html {
   transition: background-color 0.3s, color 0.3s;
+}
+.dark .input,
+textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #424242;
+  border-radius: 8px;
 }

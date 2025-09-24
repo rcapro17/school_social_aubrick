@@ -5,6 +5,6 @@ class CanManagePost(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         user = request.user
-        if getattr(user, "role", None) == "teacher":
+        if getattr(user, "role", None) in ["teacher", "student"]:
             return True
         return obj.author_id == user.id
