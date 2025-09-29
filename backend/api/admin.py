@@ -23,4 +23,6 @@ class ReactionAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "post", "type")
     list_filter = ("type",)
     search_fields = ("user__username",)
+    
+
 
