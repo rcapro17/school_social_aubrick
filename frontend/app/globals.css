@@ -45,6 +45,7 @@ textarea {
 .header-inner {
   max-width: 1000px;
   margin: 0 auto;
+  color: white;
   padding: 25px;
   display: flex;
   gap: 12px;
@@ -104,6 +105,7 @@ textarea {
   border-color: #333;
 }
 
-body, html {
+body,
+html {
   transition: background-color 0.3s, color 0.3s;
 }

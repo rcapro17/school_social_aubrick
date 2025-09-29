@@ -4,16 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api, apiForm, authHeaders, API_BASE } from "../lib/apiClient";
 
-// Função para corrigir URL do avatar
-function getAvatarUrl(avatar) {
-  if (!avatar) return null;
-  
-  // Se já é URL completa, use como está
-  if (avatar.startsWith('http')) return avatar;
-  
-  // Remove /api/ se estiver presente e constrói URL correta
-  const baseUrl = API_BASE.replace('/api', '');
-  return `${baseUrl}${avatar}`;
+// Helper para normalizar URL de mídia (avatar/imagens) vinda do Django
+function getAvatarUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path; // já é absoluta
+  const baseUrl = API_BASE.replace("/api", ""); // remove /api
+  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
 function Header({ me, onLogout }) {
@@ -21,7 +17,9 @@ function Header({ me, onLogout }) {
     <div className="header">
       <div className="header-inner">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <strong>School Social</strong>
+          <Link href="/">
+            <strong>School Social</strong>
+          </Link>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {!me ? (
@@ -30,20 +28,25 @@ function Header({ me, onLogout }) {
             </Link>
           ) : (
             <>
-              {me.avatar && (
-                <img 
-                  className="avatar" 
-                  src={getAvatarUrl(me.avatar)} 
-                  alt="avatar"
-                  onError={(e) => {
-                    console.log('Erro no avatar do header:', e.target.src);
-                    e.target.style.display = 'none';
-                  }}
-                />
+              {/* Header: me (top-right) */}
+              {me?.avatar && (
+                <Link href={`/u/${me.id}`} title="My profile">
+                  <img
+                    className="avatar"
+                    src={getAvatarUrl(me.avatar)}
+                    alt="me"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                </Link>
               )}
-              <span>
-                {me.username} • {me.role}
-              </span>
+              <Link
+                href={`/u/${me.id}`}
+                className="btn-link"
+                title="My profile">
+                <span>
+                  {me.username} • {me.role}
+                </span>
+              </Link>
               <button className="btn secondary" onClick={onLogout}>
                 Logout
               </button>
@@ -142,16 +145,16 @@ export default function HomePage() {
         {me && (
           <div className="card">
             <div style={{ display: "flex", gap: 8 }}>
-              {me.avatar && (
-                <img 
-                  className="avatar" 
-                  src={getAvatarUrl(me.avatar)} 
-                  alt="me"
-                  onError={(e) => {
-                    console.log('Erro no avatar do post:', e.target.src);
-                    e.target.style.display = 'none';
-                  }}
-                />
+              {/* Composer: me (left of textarea) */}
+              {me?.avatar && (
+                <Link href={`/u/${me.id}`} title="My profile">
+                  <img
+                    className="avatar"
+                    src={getAvatarUrl(me.avatar)}
+                    alt="me"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                </Link>
               )}
               <textarea
                 rows={3}
@@ -180,20 +183,26 @@ export default function HomePage() {
           posts.map((p) => (
             <div className="card" key={p.id}>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                {/* Each post: author avatar */}
                 {p.author?.avatar && (
-                  <img 
-                    className="avatar" 
-                    src={getAvatarUrl(p.author.avatar)} 
-                    alt="a"
-                    onError={(e) => {
-                      console.log('Erro no avatar do post:', e.target.src);
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                  <Link
+                    href={`/u/${p.author.id}`}
+                    title={`${p.author.username}'s profile`}>
+                    <img
+                      className="avatar"
+                      src={getAvatarUrl(p.author.avatar)}
+                      alt={p.author.username}
+                      onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                  </Link>
                 )}
                 <div>
                   <div>
-                    <strong>{p.author?.username}</strong> •{" "}
+                    {/* Each post: author name link */}
+                    <Link href={`/u/${p.author.id}`}>
+                      <strong>{p.author?.username}</strong>
+                    </Link>
+                    {" • "}
                     <small>{new Date(p.created_at).toLocaleString()}</small>
                   </div>
                   <div style={{ color: "#666" }}>{p.author?.role}</div>
@@ -216,12 +225,12 @@ export default function HomePage() {
               {p.images?.map((img) => (
                 <img
                   key={img.id}
-                  src={getAvatarUrl(img.image)} // Aplicando correção também nas imagens dos posts
+                  src={getAvatarUrl(img.image)} // normaliza URL das imagens do post
                   className="post-image"
                   alt="img"
-                  onError={(e) => {
-                    console.log('Erro na imagem do post:', e.target.src);
-                  }}
+                  onError={(e) =>
+                    console.log("Erro na imagem do post:", e.currentTarget.src)
+                  }
                 />
               ))}
 

@@ -41,13 +41,23 @@ class UserViewSet(viewsets.ModelViewSet):
         user_obj.save(update_fields=["avatar"])
         return Response(UserSerializer(user_obj).data, status=200)
 
+        
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.select_related("author").prefetch_related("images", "reactions").all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, CanManagePost]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        author_id = self.request.query_params.get("author")
+        if author_id:
+            qs = qs.filter(author_id=author_id)
+        return qs
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+    ...
+
 
     @action(detail=True, methods=["post"])
     def upload_image(self, request, pk=None):
