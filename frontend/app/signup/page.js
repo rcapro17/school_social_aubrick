@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { API_BASE } from "../../lib/apiClient";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./signup.module.css";
+import { API_BASE } from "@/lib/apiClient";
 
 export default function SignUp() {
   const [form, setForm] = useState({
@@ -11,6 +14,7 @@ export default function SignUp() {
     role: "student",
     first_name: "",
     last_name: "",
+    bio: "",
   });
   const [avatar, setAvatar] = useState(null);
   const [err, setErr] = useState("");
@@ -23,7 +27,7 @@ export default function SignUp() {
     e.preventDefault();
     setErr("");
     try {
-      // 1) create the user
+      // Create user (includes optional bio)
       const res = await fetch(`${API_BASE}/users/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,7 +35,7 @@ export default function SignUp() {
       });
       if (!res.ok) throw new Error(await res.text());
 
-      // 2) login
+      // Login
       const tokenRes = await fetch(`${API_BASE}/auth/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,13 +48,13 @@ export default function SignUp() {
       const token = await tokenRes.json();
       localStorage.setItem("token", token.access);
 
-      // 3) fetch /me to get my id
+      // Get my ID
       const meRes = await fetch(`${API_BASE}/me/`, {
         headers: { Authorization: `Bearer ${token.access}` },
       });
       const me = await meRes.json();
 
-      // 4) upload avatar if selected
+      // Upload avatar if provided
       if (avatar) {
         const fd = new FormData();
         fd.set("avatar", avatar);
@@ -62,7 +66,6 @@ export default function SignUp() {
         if (!up.ok) throw new Error(await up.text());
       }
 
-      // 5) go to timeline
       location.href = "/";
     } catch (e) {
       setErr("Could not sign up");
@@ -71,70 +74,104 @@ export default function SignUp() {
   }
 
   return (
-    <div className="container">
-      <div className="card" style={{ maxWidth: 520, margin: "40px auto" }}>
-        <h3>Create account</h3>
-        {err && <div style={{ color: "red" }}>{err}</div>}
-        <form onSubmit={submit}>
-          <div className="row">
-            <input
-              className="input"
-              placeholder="First name"
-              value={form.first_name}
-              onChange={(e) => update("first_name", e.target.value)}
-            />
-            <input
-              className="input"
-              placeholder="Last name"
-              value={form.last_name}
-              onChange={(e) => update("last_name", e.target.value)}
-            />
-          </div>
-          <input
-            className="input"
-            placeholder="Username"
-            value={form.username}
-            onChange={(e) => update("username", e.target.value)}
-            style={{ marginTop: 8 }}
+    <div className={styles.split}>
+      {/* LEFT: brand panel */}
+      <div className={styles.left}>
+        <div className={styles.leftInner}>
+          <Image
+            src="/logo/sociAubrick.png"
+            alt="SociAubrick"
+            width={440}
+            height={440}
+            priority
+            className={styles.logo}
           />
-          <input
-            className="input"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => update("email", e.target.value)}
-            style={{ marginTop: 8 }}
-          />
-          <input
-            className="input"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => update("password", e.target.value)}
-            style={{ marginTop: 8 }}
-          />
-          <div style={{ marginTop: 8 }}>
-            Role:
-            <select
-              className="input"
-              value={form.role}
-              onChange={(e) => update("role", e.target.value)}>
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="parent">Parent</option>
-            </select>
+          <h1 className={styles.title}>Welcome to School Social</h1>
+          <p className={styles.subtitle}>Join your school’s private network</p>
+        </div>
+      </div>
+
+      {/* RIGHT: form panel */}
+      <div className={styles.right}>
+        <div className={styles.formWrap}>
+          <div className={styles.card}>
+            <h3 className={styles.cardTitle}>Create account</h3>
+            {err && <div className={styles.error}>{err}</div>}
+            <form onSubmit={submit} className={styles.form}>
+              <div className={styles.row}>
+                <input
+                  className="input"
+                  placeholder="First name"
+                  value={form.first_name}
+                  onChange={(e) => update("first_name", e.target.value)}
+                />
+                <input
+                  className="input"
+                  placeholder="Last name"
+                  value={form.last_name}
+                  onChange={(e) => update("last_name", e.target.value)}
+                />
+              </div>
+
+              <input
+                className="input"
+                placeholder="Username"
+                value={form.username}
+                onChange={(e) => update("username", e.target.value)}
+              />
+              <input
+                className="input"
+                placeholder="Email"
+                value={form.email}
+                onChange={(e) => update("email", e.target.value)}
+              />
+              <input
+                className="input"
+                type="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={(e) => update("password", e.target.value)}
+              />
+
+              <div className={styles.row}>
+                <label className={styles.label}>Role</label>
+                <select
+                  className="input"
+                  value={form.role}
+                  onChange={(e) => update("role", e.target.value)}>
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="parent">Parent</option>
+                </select>
+              </div>
+
+              <textarea
+                className="input"
+                rows={3}
+                placeholder="Short bio (optional)"
+                value={form.bio}
+                onChange={(e) => update("bio", e.target.value)}
+              />
+
+              <div className={styles.row}>
+                <label className={styles.label}>Avatar (optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+                />
+              </div>
+
+              <button className="btn" type="submit">
+                Sign up
+              </button>
+            </form>
+
+            <div className={styles.footer}>
+              Already have an account? <Link href="/signin">Sign in</Link>
+            </div>
           </div>
-          <div style={{ marginTop: 8 }}>
-            Avatar (optional):{" "}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setAvatar(e.target.files?.[0] || null)}
-            />
-          </div>
-          <button className="btn" style={{ marginTop: 8 }} type="submit">
-            Sign up
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

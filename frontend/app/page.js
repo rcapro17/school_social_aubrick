@@ -2,63 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api, apiForm, authHeaders, API_BASE } from "../lib/apiClient";
+import Header from "@/components/Header";
+import ReactionBar from "@/components/ReactionBar";
+import CommentsThread from "@/components/CommentsThread";
+import styles from "./page.module.css";
+import { api, apiForm, authHeaders, toAbsoluteUrl } from "@/lib/apiClient";
 
-// Helper para normalizar URL de mídia (avatar/imagens) vinda do Django
-function getAvatarUrl(path) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path; // já é absoluta
-  const baseUrl = API_BASE.replace("/api", ""); // remove /api
-  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-
-function Header({ me, onLogout }) {
-  return (
-    <div className="header">
-      <div className="header-inner">
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Link href="/">
-            <strong>School Social</strong>
-          </Link>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {!me ? (
-            <Link href="/signin" className="btn secondary">
-              Sign in
-            </Link>
-          ) : (
-            <>
-              {/* Header: me (top-right) */}
-              {me?.avatar && (
-                <Link href={`/u/${me.id}`} title="My profile">
-                  <img
-                    className="avatar"
-                    src={getAvatarUrl(me.avatar)}
-                    alt="me"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
-                  />
-                </Link>
-              )}
-              <Link
-                href={`/u/${me.id}`}
-                className="btn-link"
-                title="My profile">
-                <span>
-                  {me.username} • {me.role}
-                </span>
-              </Link>
-              <button className="btn secondary" onClick={onLogout}>
-                Logout
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function HomePage() {
+export default function TimelinePage() {
   const [me, setMe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -68,14 +18,13 @@ export default function HomePage() {
   async function load() {
     setLoading(true);
     try {
-      const user = await api("/me/");
+      const user = await api("/me/").catch(() => null);
       setMe(user);
       const data = await api("/posts/");
       setPosts(data.results || data);
-    } catch {
-      setMe(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -95,19 +44,6 @@ export default function HomePage() {
     }
     setContent("");
     setImages([]);
-    await load();
-  }
-
-  async function react(postId, type = "like") {
-    await api(`/posts/${postId}/react/`, {
-      method: "POST",
-      body: JSON.stringify({ type }),
-    });
-    await load();
-  }
-
-  async function unreact(postId) {
-    await api(`/posts/${postId}/unreact/`, { method: "POST" });
     await load();
   }
 
@@ -135,6 +71,7 @@ export default function HomePage() {
           location.reload();
         }}
       />
+
       <div className="container">
         {!me && (
           <div className="card">
@@ -144,13 +81,12 @@ export default function HomePage() {
 
         {me && (
           <div className="card">
-            <div style={{ display: "flex", gap: 8 }}>
-              {/* Composer: me (left of textarea) */}
+            <div className={styles.composer}>
               {me?.avatar && (
                 <Link href={`/u/${me.id}`} title="My profile">
                   <img
                     className="avatar"
-                    src={getAvatarUrl(me.avatar)}
+                    src={toAbsoluteUrl(me.avatar)}
                     alt="me"
                     onError={(e) => (e.currentTarget.style.display = "none")}
                   />
@@ -182,15 +118,14 @@ export default function HomePage() {
         ) : (
           posts.map((p) => (
             <div className="card" key={p.id}>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                {/* Each post: author avatar */}
+              <div className={styles.postHeader}>
                 {p.author?.avatar && (
                   <Link
                     href={`/u/${p.author.id}`}
                     title={`${p.author.username}'s profile`}>
                     <img
                       className="avatar"
-                      src={getAvatarUrl(p.author.avatar)}
+                      src={toAbsoluteUrl(p.author.avatar)}
                       alt={p.author.username}
                       onError={(e) => (e.currentTarget.style.display = "none")}
                     />
@@ -198,7 +133,6 @@ export default function HomePage() {
                 )}
                 <div>
                   <div>
-                    {/* Each post: author name link */}
                     <Link href={`/u/${p.author.id}`}>
                       <strong>{p.author?.username}</strong>
                     </Link>
@@ -208,7 +142,7 @@ export default function HomePage() {
                   <div style={{ color: "#666" }}>{p.author?.role}</div>
                 </div>
                 {canManage(p) && (
-                  <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                  <div className={styles.actionsRight}>
                     <button className="react" onClick={() => remove(p.id)}>
                       Delete
                     </button>
@@ -225,35 +159,17 @@ export default function HomePage() {
               {p.images?.map((img) => (
                 <img
                   key={img.id}
-                  src={getAvatarUrl(img.image)} // normaliza URL das imagens do post
+                  src={toAbsoluteUrl(img.image)}
                   className="post-image"
                   alt="img"
-                  onError={(e) =>
-                    console.log("Erro na imagem do post:", e.currentTarget.src)
-                  }
                 />
               ))}
 
-              <div className="reacts">
-                <button className="react" onClick={() => react(p.id, "like")}>
-                  👍 Like
-                </button>
-                <button className="react" onClick={() => react(p.id, "love")}>
-                  ❤️ Love
-                </button>
-                <button className="react" onClick={() => react(p.id, "laugh")}>
-                  😂 Laugh
-                </button>
-                <button className="react" onClick={() => unreact(p.id)}>
-                  ❌ Remove reaction
-                </button>
-              </div>
+              {/* ⇩ New: Reaction bar with counts and current user's reaction */}
+              <ReactionBar post={p} onChanged={load} />
 
-              {p.reactions?.length > 0 && (
-                <div style={{ marginTop: 6, color: "#666" }}>
-                  {p.reactions.map((r) => r.type).join(" • ")}
-                </div>
-              )}
+              {/* ⇩ New: Comments (with replies) for this post */}
+              <CommentsThread postId={p.id} me={me} />
             </div>
           ))
         )}

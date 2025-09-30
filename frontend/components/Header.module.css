@@ -1,0 +1,65 @@
+.header {
+  background: #1b2c5d;
+  border-bottom: 1px solid #000;
+  margin-bottom: 12px;
+  height: 64px;
+  overflow: visible;
+}
+
+.inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  color: #fff;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+}
+.Header_brand__fkyv5 {
+  gap: 30;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 30px;
+  line-height: 1;
+  text-decoration: none;
+  position: relative;
+}
+
+.logoWrap {
+  height: 64px;
+  gap: 30px;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+}
+
+.logo {
+  display: block;
+  justify-content: space-between;
+  height: 88px;
+  width: auto;
+  object-fit: contain;
+  transform: scale(1.8);
+  transform-origin: left center;
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatarLink {
+  line-height: 0;
+}

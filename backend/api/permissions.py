@@ -8,3 +8,16 @@ class CanManagePost(BasePermission):
         if getattr(user, "role", None) == "teacher":
             return True
         return obj.author_id == user.id
+
+
+
+class CanManageComment(BasePermission):
+    """
+    Teachers can edit/delete any comment.
+    Students/Parents can edit/delete their own comments.
+    """
+    def has_object_permission(self, request, view, obj):
+        if getattr(request.user, "role", None) == "teacher":
+            return True
+        return obj.author_id == request.user.id
+

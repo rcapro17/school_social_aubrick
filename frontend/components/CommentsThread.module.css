@@ -1,0 +1,104 @@
+.wrap {
+  margin-top: 8px;
+}
+
+.loading,
+.empty {
+  color: #666;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 18px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 18px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.list,
+.replies {
+  list-style: none;
+  padding-left: 0;
+  margin: 10px 0 0 0;
+}
+
+.item + .item {
+  margin-top: 8px;
+}
+
+.comment {
+  display: flex;
+  gap: 8px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+
+.bubble {
+  background: #f5f6f8;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 8px 10px;
+  flex: 1;
+}
+
+.meta {
+  font-size: 13px;
+  color: #555;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.time {
+  margin-left: 4px;
+  color: #777;
+}
+
+.text {
+  margin-top: 4px;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #1b2c5d;
+  cursor: pointer;
+  padding: 0;
+}
+
+.replyBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}

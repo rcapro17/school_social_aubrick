@@ -1,11 +1,9 @@
-// frontend/lib/apiClient.js
 "use client";
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000/api";
 
 export function apiOrigin() {
-  // strip trailing /api from API_BASE
   return API_BASE.replace(/\/api\/?$/, "");
 }
 
@@ -17,7 +15,7 @@ export function authHeaders() {
 
 export function toAbsoluteUrl(url) {
   if (!url) return url;
-  if (/^https?:\/\//i.test(url)) return url; // already absolute
+  if (/^https?:\/\//i.test(url)) return url;
   return `${apiOrigin()}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 

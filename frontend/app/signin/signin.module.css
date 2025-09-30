@@ -1,0 +1,88 @@
+.split {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.left {
+  background: var(--brand);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leftInner {
+  text-align: center;
+  padding: 24px;
+  max-width: 520px;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 16px auto;
+  height: 440px; /* visual size (bigger); image src is larger for crispness */
+  width: auto;
+}
+
+.title {
+  margin: 0 0 6px 0;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.subtitle {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.right {
+  background: #fff;
+  display: grid;
+  place-items: center; /* center the card */
+  padding: 24px;
+}
+
+.formWrap {
+  width: 100%;
+  max-width: 420px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.cardTitle {
+  margin: 0 0 12px 0;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+.error {
+  color: #c00;
+  margin-bottom: 8px;
+}
+
+.footer {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .right {
+    min-height: 60vh;
+  }
+}

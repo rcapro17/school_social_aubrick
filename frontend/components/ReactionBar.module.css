@@ -1,0 +1,39 @@
+.wrap {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.active {
+  border-color: #1b2c5d;
+  background: #eef2ff;
+}
+
+.remove {
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.summary {
+  color: #666;
+  font-size: 14px;
+}

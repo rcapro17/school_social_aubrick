@@ -1,3 +1,7 @@
+:root {
+  --brand: #1b2c5d;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -13,10 +17,11 @@ a {
 }
 .card {
   background: #fff;
+  height: auto;
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .btn {
   padding: 8px 12px;
@@ -108,4 +113,32 @@ textarea {
 body,
 html {
   transition: background-color 0.3s, color 0.3s;
+}
+
+/* Brand area: aligned, comfortable touch target */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 18px;
+}
+.brand-logo {
+  height: 320px; /* 👈 change this value until it looks right */
+  width: auto; /* maintain proportions */
+  object-fit: contain;
+  padding: 2px;
+}
+
+.header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand img {
+  display: block;
 }

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { API_BASE } from "../../lib/apiClient";
+import Image from "next/image";
+import styles from "./signin.module.css";
+import { API_BASE } from "@/lib/apiClient";
 
 export default function SignIn() {
   const [username, setUsername] = useState("");
@@ -28,31 +30,51 @@ export default function SignIn() {
   }
 
   return (
-    <div className="container">
-      <div className="card" style={{ maxWidth: 420, margin: "40px auto" }}>
-        <h3>Sign in</h3>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        <form onSubmit={submit}>
-          <input
-            className="input"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+    <div className={styles.split}>
+      {/* LEFT: brand panel */}
+      <div className={styles.left}>
+        <div className={styles.leftInner}>
+          <Image
+            src="/logo/sociAubrick.png"
+            alt="SociAubrick"
+            width={440}
+            height={440}
+            priority
+            className={styles.logo}
           />
-          <input
-            className="input"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ marginTop: 8 }}
-          />
-          <button className="btn" style={{ marginTop: 8 }} type="submit">
-            Sign in
-          </button>
-        </form>
-        <div style={{ marginTop: 8 }}>
-          No account? <Link href="/signup">Sign up</Link>
+          <h1 className={styles.title}>School Social</h1>
+          <p className={styles.subtitle}>Connect with your school community</p>
+        </div>
+      </div>
+
+      {/* RIGHT: form panel */}
+      <div className={styles.right}>
+        <div className={styles.formWrap}>
+          <div className={styles.card}>
+            <h3 className={styles.cardTitle}>Sign in</h3>
+            {error && <div className={styles.error}>{error}</div>}
+            <form onSubmit={submit} className={styles.form}>
+              <input
+                className="input"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <input
+                className="input"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button className="btn" type="submit">
+                Sign in
+              </button>
+            </form>
+            <div className={styles.footer}>
+              No account? <Link href="/signup">Create new account</Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

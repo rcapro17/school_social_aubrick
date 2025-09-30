@@ -1,0 +1,16 @@
+.composer {
+  display: flex;
+  gap: 8px;
+}
+
+.postHeader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actionsRight {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
