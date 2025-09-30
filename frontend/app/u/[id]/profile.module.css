@@ -2,7 +2,7 @@
 .coverCard {
   position: relative;
   height: 250px;
-  padding-bottom: 48px; /* space for overlapping avatar row */
+  padding-bottom: 48px;
 }
 
 /* Cover keeps its clipping */
@@ -24,20 +24,34 @@
 .coverPlaceholder {
   width: 100%;
   height: 100%;
-  background: #e3e6ea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Top-right controls on the cover */
-.coverControls {
+/* Hover "Edit cover" button overlay - similar to avatar */
+.coverEditBtn {
   position: absolute;
   right: 12px;
   bottom: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 6px 8px;
+  font-size: 13px;
+  padding: 8px 14px;
   border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  font-weight: 500;
+}
+
+.coverBox:hover .coverEditBtn {
+  opacity: 1;
+}
+
+.coverEditBtn:hover {
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .hiddenInput {
@@ -48,7 +62,7 @@
 .profileRow {
   position: absolute;
   left: 16px;
-  bottom: 10px; /* overlap */
+  bottom: 10px;
   display: flex;
   gap: 16px;
   align-items: center;
@@ -72,7 +86,7 @@
   display: block;
 }
 
-/* Hover “Edit photo” button overlay */
+/* Hover "Edit photo" button overlay */
 .avatarEditBtn {
   position: absolute;
   left: 50%;
@@ -88,6 +102,7 @@
   opacity: 0;
   transition: opacity 0.15s ease;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .avatarWrap:hover .avatarEditBtn {
@@ -102,11 +117,14 @@
 
 .role {
   color: #f36314;
-  font: 400;
+  font-weight: 500;
+  text-transform: capitalize;
 }
 
 .cardTitle {
-  margin: 0 0 8px 0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .bioForm {
@@ -116,12 +134,21 @@
 
 .bioText {
   margin: 0;
+  color: #333;
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .postItem {
   border-top: 1px solid #eee;
   padding-top: 12px;
   margin-top: 12px;
+}
+
+.postItem:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .postHeader {
