@@ -312,8 +312,8 @@ export default function TimelinePage() {
                     
                     <div style={{
                       position: 'fixed',
-                      top: '20%',
-                      left: '43%',
+                      top: '50%',
+                      left: '50%',
                       transform: 'translate(-50%, -50%)',
                       backgroundColor: 'white',
                       border: '1px solid #e1e8ed',
