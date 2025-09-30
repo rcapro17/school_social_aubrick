@@ -15,13 +15,11 @@ export default function UserProfilePage() {
 
   const [me, setMe] = useState(null);
   const [user, setUser] = useState(null);
-
   const [bio, setBio] = useState("");
+  const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioSaving, setBioSaving] = useState(false);
-
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [savingAvatar, setSavingAvatar] = useState(false);
   const [savingCover, setSavingCover] = useState(false);
 
@@ -97,8 +95,12 @@ export default function UserProfilePage() {
     }
   }
 
-  async function saveBio(e) {
-    e.preventDefault();
+  async function saveBio() {
+    if (!bio.trim() && !user.bio) {
+      setIsEditingBio(false);
+      return;
+    }
+    
     setBioSaving(true);
     try {
       const token = localStorage.getItem("token");
@@ -108,16 +110,25 @@ export default function UserProfilePage() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ bio }),
+        body: JSON.stringify({ bio: bio.trim() }),
       });
       if (!res.ok) throw new Error(await res.text());
-      await load();
+      
+      const updatedUser = await res.json();
+      setUser(updatedUser);
+      setBio(updatedUser.bio || "");
+      setIsEditingBio(false);
     } catch (e) {
       console.error(e);
       alert("Could not save bio.");
     } finally {
       setBioSaving(false);
     }
+  }
+
+  function cancelBioEdit() {
+    setBio(user?.bio || "");
+    setIsEditingBio(false);
   }
 
   function onLogout() {
@@ -134,7 +145,6 @@ export default function UserProfilePage() {
 
         {!loading && user && (
           <>
-            {/* ===== Cover + Avatar (floating) ===== */}
             <div className="card" style={{ padding: 0 }}>
               <div className={styles.coverCard}>
                 <div className={styles.coverBox}>
@@ -149,7 +159,7 @@ export default function UserProfilePage() {
                   )}
 
                   {isOwnPage && (
-                    <div className={styles.coverControls}>
+                    <>
                       <input
                         ref={coverInputRef}
                         type="file"
@@ -158,14 +168,17 @@ export default function UserProfilePage() {
                         className={styles.hiddenInput}
                         id="cover-picker"
                       />
-                      <label htmlFor="cover-picker" className="btn secondary">
-                        {savingCover ? "Saving..." : "Change cover"}
+                      <label 
+                        htmlFor="cover-picker" 
+                        className={styles.coverEditBtn}
+                        title="Change cover photo"
+                      >
+                        {savingCover ? "Saving..." : "Edit cover"}
                       </label>
-                    </div>
+                    </>
                   )}
                 </div>
 
-                {/* Floating avatar row (not clipped) */}
                 <div className={styles.profileRow}>
                   <div className={styles.avatarWrap}>
                     <img
@@ -203,29 +216,54 @@ export default function UserProfilePage() {
               </div>
             </div>
 
-            {/* ===== Bio ===== */}
             <div className="card">
-              <h3 className={styles.cardTitle}>About</h3>
-              {!isOwnPage ? (
-                <p className={styles.bioText}>{user.bio || "No bio yet."}</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h3 className={styles.cardTitle}>About</h3>
+                {isOwnPage && !isEditingBio && (
+                  <button 
+                    className="btn secondary" 
+                    onClick={() => setIsEditingBio(true)}
+                    style={{ fontSize: 14, padding: '6px 12px' }}
+                  >
+                    Edit bio
+                  </button>
+                )}
+              </div>
+
+              {!isEditingBio ? (
+                <p className={styles.bioText}>
+                  {user.bio || (isOwnPage ? "No bio yet. Click 'Edit bio' to add one." : "No bio yet.")}
+                </p>
               ) : (
-                <form onSubmit={saveBio} className={styles.bioForm}>
+                <div className={styles.bioForm}>
                   <textarea
                     rows={4}
+                    className="input"
                     placeholder="Tell something about you (classes, interests, etc.)"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
+                    autoFocus
                   />
-                  <div>
-                    <button className="btn" type="submit" disabled={bioSaving}>
-                      {bioSaving ? "Saving..." : "Save bio"}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <button 
+                      className="btn" 
+                      onClick={saveBio} 
+                      disabled={bioSaving}
+                    >
+                      {bioSaving ? "Saving..." : "Save"}
+                    </button>
+                    <button 
+                      className="btn secondary" 
+                      onClick={cancelBioEdit}
+                      disabled={bioSaving}
+                    >
+                      Cancel
                     </button>
                   </div>
-                </form>
+                </div>
               )}
             </div>
 
-            {/* ===== Posts (reactions + comments) ===== */}
             <div className="card">
               <h3 className={styles.cardTitle}>Posts</h3>
               {posts.length === 0 && <div>No posts yet.</div>}
