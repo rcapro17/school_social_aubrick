@@ -56,22 +56,28 @@ class Comment(models.Model):
         return f"Comment #{self.pk} by {self.author.username} on Post #{self.post_id}"
 
 
-
+# app/models.py
 class Reaction(models.Model):
     class Types(models.TextChoices):
-        LIKE  = 'like',  'Like'
-        LOVE  = 'love',  'Love'
-        WOW   = 'wow',   'Wow'
-        LAUGH = 'laugh', 'Laugh'
-        SAD   = 'sad',   'Sad'
-        ANGRY = 'angry', 'Angry'
+        EINSTEIN    = 'einstein',   'Einstein'
+        SHAKESPEARE = 'shakespeare','Shakespeare'
+        DAVINCI     = 'davinci',    'Leonardo da Vinci'
+        MANDELA     = 'mandela',    'Nelson Mandela'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reactions')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='reactions')
-    type = models.CharField(max_length=10, choices=Types.choices, default=Types.LIKE)
+    type = models.CharField(max_length=20, choices=Types.choices, default=Types.EINSTEIN)
 
     class Meta:
         unique_together = ('user', 'post')
+        indexes = [
+            models.Index(fields=['post', 'type']),
+            models.Index(fields=['user', 'post']),
+        ]
 
     def __str__(self):
         return f"{self.user.username} {self.type} Post #{self.post_id}"
+
+
+
+

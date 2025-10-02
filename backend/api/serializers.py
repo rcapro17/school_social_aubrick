@@ -1,18 +1,10 @@
+# backend/api/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import Post, PostImage, Reaction, Comment
+from django.db.models import Count
 
-
-
-User = get_user_model()
-
-
-    
-# backend/api/serializers.py
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from .models import Post, PostImage, Reaction, Comment
 
 User = get_user_model()
 
@@ -211,12 +203,13 @@ class ReactionSerializer(serializers.ModelSerializer):
         model = Reaction
         fields = ["id", "user", "post", "type"]
 
+REACTION_KEYS = [k for k, _ in Reaction.Types.choices]  # ['einstein','shakespeare','davinci','mandela']
+
 class PostSerializer(serializers.ModelSerializer):
     author = UserMiniSerializer(read_only=True)
     images = PostImageSerializer(many=True, read_only=True)
     reactions = ReactionSerializer(many=True, read_only=True)
 
-    # New extras:
     reaction_counts = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
 
@@ -229,16 +222,21 @@ class PostSerializer(serializers.ModelSerializer):
         )
 
     def get_reaction_counts(self, obj):
-        counts = {}
-        for r in obj.reactions.all():
-            counts[r.type] = counts.get(r.type, 0) + 1
+        # Start with zeros so frontend keys are always present
+        counts = {k: 0 for k in REACTION_KEYS}
+
+        # Use the prefetched reactions (no extra queries)
+        for r in getattr(obj, "reactions").all():
+            if r.type in counts:
+                counts[r.type] += 1
+
         counts["total"] = sum(counts.values())
         return counts
 
     def get_my_reaction(self, obj):
-        user = self.context.get("request").user if self.context.get("request") else None
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
         if not user or not user.is_authenticated:
             return None
         mine = obj.reactions.filter(user_id=user.id).first()
         return mine.type if mine else None
-

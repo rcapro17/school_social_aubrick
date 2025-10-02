@@ -6,17 +6,25 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.db import transaction
 
-from .models import Post, PostImage, Reaction
+
+
+# from .serializers import PostSerializer, PostImageSerializer, ReactionSerializer
+# from .permissions import CanManagePost
+
+
+
+from .permissions import CanManagePost, CanManageComment
+
+from .models import Post, PostImage, Reaction, Comment
 from .serializers import (
     UserSerializer,
     PostSerializer,
     PostImageSerializer,
     ReactionSerializer,
+    CommentSerializer
 )
-
-
-from .permissions import CanManagePost, CanManageComment
 
 
 
@@ -110,19 +118,27 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(UserSerializer(user_obj, context={"request": request}).data, status=200)
 
 
+VALID_REACTIONS = {k for k, _ in Reaction.Types.choices}  # {'einstein','shakespeare','davinci','mandela'}
+
 class PostViewSet(viewsets.ModelViewSet):
     """
     /api/posts/                [GET list feed, POST create]
     /api/posts/{id}/           [GET, PATCH, DELETE with permissions]
     /api/posts/{id}/upload_image/  [POST multipart 'image' - author or teacher]
-    /api/posts/{id}/react/     [POST {'type': 'like'|'love'|...}]
+    /api/posts/{id}/react/     [POST {'type': 'einstein'|'shakespeare'|'davinci'|'mandela'}]
     /api/posts/{id}/unreact/   [POST remove reaction]
     Supports filter: /api/posts/?author=<user_id>
     """
     queryset = (
         Post.objects
         .select_related("author")
-        .prefetch_related("images", "reactions")
+        # Prefetch only the fields we use for counts/my_reaction for efficiency
+        .prefetch_related(
+            "images",
+            # Keep your ReactionSerializer happy; at minimum we need type and user_id
+            # If you have a custom ReactionSerializer that needs more, adjust fields.
+            "reactions",
+        )
         .all()
     )
     serializer_class = PostSerializer
@@ -157,28 +173,53 @@ class PostViewSet(viewsets.ModelViewSet):
         img = PostImage.objects.create(post=post, image=file)
         return Response(PostImageSerializer(img, context={"request": request}).data, status=201)
 
+  
     @action(detail=True, methods=["post"])
+    @transaction.atomic
     def react(self, request, pk=None):
         post = self.get_object()
-        rtype = request.data.get("type", "like")
-        reaction, _ = Reaction.objects.update_or_create(
+        rtype = (request.data.get("type") or "").strip().lower()
+
+        if rtype not in VALID_REACTIONS:
+            return Response(
+                {"detail": f"Invalid reaction type. Must be one of {sorted(VALID_REACTIONS)}."},
+                status=400,
+            )
+
+        # One reaction per user/post — update or create
+        Reaction.objects.update_or_create(
             user=request.user, post=post, defaults={"type": rtype}
         )
-        return Response(ReactionSerializer(reaction, context={"request": request}).data, status=200)
 
+        # Return updated post with counts + my_reaction
+        data = PostSerializer(post, context={"request": request}).data
+        return Response(data, status=200)
+
+  
     @action(detail=True, methods=["post"])
+    @transaction.atomic
     def unreact(self, request, pk=None):
         post = self.get_object()
         Reaction.objects.filter(user=request.user, post=post).delete()
-        return Response(status=204)
+
+        # Return updated post (so UI can refresh counts without extra GET)
+        data = PostSerializer(post, context={"request": request}).data
+        return Response(data, status=200)
+    
+    def get_permissions(self):
+        # Actions that any authenticated user can do
+        open_actions = {"list", "retrieve", "react", "unreact"}
+        # Actions restricted to the owner/teacher (your custom CanManagePost)
+        restricted_actions = {"create", "update", "partial_update", "destroy", "upload_image"}
+
+        if self.action in open_actions:
+            return [IsAuthenticated()]
+        if self.action in restricted_actions:
+            return [IsAuthenticated(), CanManagePost()]
+        # Fallback
+        return [IsAuthenticated()]
 
 
-
-from .models import Post, PostImage, Reaction, Comment
-from .serializers import (
-    UserSerializer, PostSerializer, PostImageSerializer, ReactionSerializer,
-    CommentSerializer
-)
 
 
 class CommentViewSet(viewsets.ModelViewSet):

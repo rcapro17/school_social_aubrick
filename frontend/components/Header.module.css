@@ -24,7 +24,7 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 30px;
+  gap: 10px;
   line-height: 1;
   text-decoration: none;
   position: relative;
@@ -32,7 +32,6 @@
 
 .logoWrap {
   height: 64px;
-  gap: 30px;
   display: flex;
   align-items: center;
   overflow: visible;

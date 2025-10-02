@@ -12,7 +12,6 @@ import { api, API_BASE, toAbsoluteUrl } from "@/lib/apiClient";
 export default function UserProfilePage() {
   const { id } = useParams();
   const router = useRouter();
-
   const [me, setMe] = useState(null);
   const [user, setUser] = useState(null);
   const [bio, setBio] = useState("");

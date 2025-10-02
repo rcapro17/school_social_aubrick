@@ -42,6 +42,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Apps
 # -----------------------------------------------------------------------------
 INSTALLED_APPS = [
+    'jazzmin',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -59,12 +60,9 @@ INSTALLED_APPS = [
 # Middleware
 # -----------------------------------------------------------------------------
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    
-
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
-
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -77,6 +75,10 @@ if not DEBUG:
     MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 ROOT_URLCONF = "school_social_aubrick.urls"
 
@@ -102,7 +104,7 @@ WSGI_APPLICATION = "school_social_aubrick.wsgi.application"
 # -----------------------------------------------------------------------------
 # pip install dj-database-url
 # Database
-from pathlib import Path
+
 
 try:
     import dj_database_url  # type: ignore
